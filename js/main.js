@@ -49,11 +49,7 @@ const cart = {
 			return tr;
 		});
 
-		const totalCount = this.cartGoods.reduce((sum, item) => {
-			return sum + item.count
-		}, 0);
-
-		cartCount.textContent = totalCount;
+		this.TotalCount();
 
 		const totalPrice = this.cartGoods.reduce((sum, item) => {
 			return sum + (item.price * item.count);
@@ -62,6 +58,13 @@ const cart = {
 		cardTableTotal.textContent = totalPrice;
 
 		cartTableGoods.append(...trGoods);
+	},
+	TotalCount() {
+		const totalCount = this.cartGoods.reduce((sum, item) => {
+			return sum + item.count
+		}, 0);
+
+		cartCount.textContent = totalCount;
 	},
 	addCartGood(id) {
 
@@ -117,6 +120,8 @@ const cart = {
 		this.renderCard();
 	}
 }
+
+cart.TotalCount();
 
 const openModal = () => {
 	cart.renderCard();
