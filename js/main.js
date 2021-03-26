@@ -20,13 +20,27 @@ const cartTableGoods = document.querySelector('.cart-table__goods');
 const cardTableTotal = document.querySelector('.card-table__total');
 const cartCount = document.querySelector('.cart-count');
 
-const getGoods = async () => {
-	const result = await fetch('db/db.json');
-	if (!result.ok) {
-		throw `ОШИБКА ${result.status}`
+/*Чтоб не делать каждый раз при запровсе товаров запрос на сервер
+можно поставить таймер, на повторное получение данных через 
+некоторое время
+ДОДЕЛАТЬ ВСТАВИТЬ ТАЙМЕР
+*/
+const checkGetGoods = () => {
+	const data = [];
+
+	return async () => {
+		//есть данные запрос не нужен
+		if (data.length) return data;
+		const result = await fetch('db/db.json');
+		if (!result.ok) {
+			throw `ОШИБКА ${result.status}`
+		}
+		data.push(...(await result.json()));
+		return data;
 	}
-	return await result.json();
 }
+
+const getGoods = checkGetGoods();
 
 const cart = {
 	cartGoods: [
@@ -95,7 +109,7 @@ const cart = {
 
 			if (item.id === id && item.count !== 0) {
 				const count = --item.count;
-				if (count <= 0) this.deleteGood(id);
+				if (!count) this.deleteGood(id);
 				else reCount = [...reCount, { ...item, count: count }];
 			} else reCount = [...reCount, { ...item }];
 
