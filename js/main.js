@@ -252,3 +252,43 @@ more.addEventListener('click', (event) => {
 	event.preventDefault();
 	getGoods().then((res) => renderCards(res))
 })
+
+
+//-------------------------------3
+
+const modalForm = document.querySelector('.modal-form');
+
+const postData = dataUser => fetch('server.php', {
+	method: 'POST',
+	body: dataUser,
+})
+
+modalForm.addEventListener('submit', event => {
+	event.preventDefault(); //Не перезагружаем страницу
+
+	let error = false;
+	//Формируем объет с данными
+	//В консоли пустой объетк
+	const formData = new FormData(modalForm);
+	//Добавляем товыры в body POST
+	formData.append('cart', JSON.stringify(cart.cartGoods));
+	postData(formData)
+		.then(respons => {
+			if (!respons.ok) {
+				error = true;
+				throw new Error(`Ошибка ответа от сервера ${respons.status}`);
+			} else alert('Ваш заказ создан');
+		})
+		.catch(err => {
+			alert(`Произошла ошибка отправки на сервер ${err}`);
+		})
+		.finally(() => {
+			if (!error) {
+				closeModal();
+				modalForm.reset(); //Очистить офрму
+				cart.clsearCard();
+			}
+		})
+});
+
+
