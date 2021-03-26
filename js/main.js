@@ -155,12 +155,7 @@ const escapeHandler = event => {
 modalCart.addEventListener('click', (e) => {
 	const target = e.target;
 
-	//есть класс || есть родитель с классом
-	if (e.target.classList.contains('modal-close') || !e.target.closest('.modal')) {
-		closeModal();
-	}
-
-	if (target.tagName === 'BUTTON' && !target.closest('.cart-clear')) {
+	if (target.tagName === 'BUTTON' && !target.closest('.cart-clear') && !target.closest('.cart-buy') && !target.closest('.modal-close')) {
 		const id = target.closest('.cart-item').dataset.id;
 
 		if (target.classList.contains('cart-btn-delete')) cart.deleteGood(id);
@@ -169,6 +164,11 @@ modalCart.addEventListener('click', (e) => {
 	}
 
 	if (e, target.closest('.cart-clear')) cart.clsearCard();
+
+	//есть класс || есть родитель с классом
+	if (e.target.classList.contains('modal-close') || !e.target.closest('.modal')) {
+		closeModal();
+	}
 })
 
 document.body.addEventListener('click', (e) => {
@@ -267,28 +267,40 @@ modalForm.addEventListener('submit', event => {
 	event.preventDefault(); //Не перезагружаем страницу
 
 	let error = false;
-	//Формируем объет с данными
-	//В консоли пустой объетк
-	const formData = new FormData(modalForm);
-	//Добавляем товыры в body POST
-	formData.append('cart', JSON.stringify(cart.cartGoods));
-	postData(formData)
-		.then(respons => {
-			if (!respons.ok) {
-				error = true;
-				throw new Error(`Ошибка ответа от сервера ${respons.status}`);
-			} else alert('Ваш заказ создан');
-		})
-		.catch(err => {
-			alert(`Произошла ошибка отправки на сервер ${err}`);
-		})
-		.finally(() => {
-			if (!error) {
-				closeModal();
-				modalForm.reset(); //Очистить офрму
-				cart.clsearCard();
-			}
-		})
+	const name = modalForm.querySelector('input[name="nameCustomer"]').value.trim();
+	const phone = modalForm.querySelector('input[name="phoneCustomer"]').value.trim();
+
+	if (cart.cartGoods.length) {
+		if (name && phone) {
+			//Формируем объет с данными
+			//В консоли пустой объетк
+			const formData = new FormData(modalForm);
+			//Добавляем товыры в body POST
+			formData.append('cart', JSON.stringify(cart.cartGoods));
+			postData(formData)
+				.then(respons => {
+					if (!respons.ok) {
+						error = true;
+						throw new Error(`Ошибка ответа от сервера ${respons.status}`);
+					} else alert('Ваш заказ создан');
+				})
+				.catch(err => {
+					alert(`Произошла ошибка отправки на сервер ${err}`);
+				})
+				.finally(() => {
+					if (!error) {
+						closeModal();
+						modalForm.reset(); //Очистить офрму
+						cart.clsearCard();
+					}
+				})
+
+		} else {
+			alert('Заполните все поля формы');
+		}
+	} else {
+		alert('Корзина пуста');
+	}
 });
 
 
