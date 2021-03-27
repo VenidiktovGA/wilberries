@@ -25,15 +25,33 @@ const cartCount = document.querySelector('.cart-count');
 некоторое время
 ДОДЕЛАТЬ ВСТАВИТЬ ТАЙМЕР
 */
+//Флаг - откуда получать товыры с сервера или из переменной
+let needUpdate = true;
+
 const checkGetGoods = () => {
 	const data = [];
 
+
 	return async () => {
+
 		//есть данные запрос не нужен
-		if (data.length) return data;
+		if (!needUpdate) {
+			setTimeout(() => {
+				needUpdate = true;
+			}, 50000);
+			return data;
+		}
+
 		const result = await fetch('db/db.json');
+
 		if (!result.ok) {
 			throw `ОШИБКА ${result.status}`
+
+		} else {
+			needUpdate = false;
+			setTimeout(() => {
+				needUpdate = true;
+			}, 50000);
 		}
 		data.push(...(await result.json()));
 		return data;
@@ -135,6 +153,7 @@ const cart = {
 	}
 }
 
+//Начальное значение корзины
 cart.TotalCount();
 
 const openModal = () => {
